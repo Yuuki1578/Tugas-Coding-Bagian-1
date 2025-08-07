@@ -1,0 +1,24 @@
+{
+  "name": "tugas-coding-bagian-1",
+  "version": "1.0.0",
+  "description": "Tugas otomatisasi website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yuuki1578/Tugas-Coding-Bagian-1.git"
+  },
+  "author": "Awang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Yuuki1578/Tugas-Coding-Bagian-1/issues"
+  },
+  "homepage": "https://github.com/Yuuki1578/Tugas-Coding-Bagian-1#readme",
+  "dependencies": {
+    "selenium-webdriver": "^4.34.0",
+    "mocha": "11.7.1"
+  }
+}

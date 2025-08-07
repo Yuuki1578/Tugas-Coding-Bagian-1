@@ -1,0 +1,4 @@
+[ERROR] 2025-08-07T12:20:51.620Z: Expected title: "Indonesia Indicator", got: ""
+[ERROR] 2025-08-07T12:21:02.872Z: Expected title: "Indonesia Indicator", got: ""
+[ERROR] 2025-08-07T12:28:10.359Z: Expected title: "Indonesia Indicator", got: ""
+[ERROR] 2025-08-07T12:30:06.458Z: Expected title: "Indonesia Indicator", got: ""
