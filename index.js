@@ -29,9 +29,9 @@ const { By, Key, Builder, Browser } = require('selenium-webdriver');
 const fs = require("node:fs");
 
 const targetUrl = "https://indonesiaindicator.com/home";
-const absoluteWaitDuration = 5000;
 const featuresAssertion = {
-    title: "Indonesia Indicator",
+  title: "Indonesia Indicator",
+  absoluteWaitDuration: 5000,
 };
 
 const AutomataError = 0x00;
@@ -39,49 +39,54 @@ const AutomataWarn = 0x01;
 const AutomataInfo = 0x02;
 
 const loggerAutomata = {
-    prefix: function (logLevel) {
-        switch (logLevel) {
-            case AutomataError:
-                return "[ERROR]";
-            case AutomataWarn:
-                return "[WARN]";
-            case AutomataInfo:
-                return "[INFO]";
-            default:
-                throw new Error("Invalid log level");
-        }
-    },
+  writer: fs.createWriteStream("automata.log", {
+    encoding: "utf-8",
+    flags: "a",
+    mode: 0o644,
+  }),
 
-    writer: "log.txt",
-
-    log: function (logLevel, message) {
-        const logMessage = `${this.prefix(logLevel)} ${new Date().toISOString()}: ${message}\n`;
-        fs.appendFile(this.writer, logMessage, (err) => {
-            if (err) {
-                console.error("Internal error: failed to write log:", err);
-                throw err;
-            }
-        });
+  prefix: function(logLevel) {
+    switch (logLevel) {
+      case AutomataError:
+        return "[ERROR]";
+      case AutomataWarn:
+        return "[WARN]";
+      case AutomataInfo:
+        return "[INFO]";
+      default:
+        throw new Error("Invalid log level");
     }
+  },
+
+  log: function(logLevel, message) {
+    const logMessage = `${this.prefix(logLevel)} ${new Date().toLocaleString()}: ${message}\n`;
+    this.writer.write(logMessage);
+  }
 };
 
+async function assertTimeout(driver, timeout) {
+  driver
+    .manage()
+    .setTimeouts({ implicit: timeout })
+    .catch(_ => loggerAutomata.log(AutomataError, "Driver loading is timed out"));
+}
+
 async function assertTitle(driver, expectedTitle) {
-    let runtimeTitle = await driver.getTitle();
-    if (runtimeTitle !== expectedTitle) {
-        loggerAutomata.log(AutomataError, `Expected title: "${expectedTitle}", got: "${runtimeTitle}"`);
-    } else {
-        loggerAutomata.log(AutomataInfo, `Assertion success: "${expectedTitle}" === "${runtimeTitle}"`);
-    }
+  let runtimeTitle = await driver.getTitle();
+  if (runtimeTitle !== expectedTitle) {
+    loggerAutomata.log(AutomataError, `Expected title: "${expectedTitle}", got: "${runtimeTitle}"`);
+  } else {
+    loggerAutomata.log(AutomataInfo, `Assertion success: "${expectedTitle}" === "${runtimeTitle}"`);
+  }
 }
 
 (async function main() {
-    let driver = await new Builder().forBrowser(Browser.CHROME).build();
-    await driver.get(targetUrl);
-    driver.manage().setTimeouts({ implicit: absoluteWaitDuration });
+  let driver = new Builder().forBrowser(Browser.CHROME).build();
+  await driver.get(targetUrl);
 
-    await assertTitle(driver, featuresAssertion.title);
-    let title = driver.findElement(By.className("title")).then(element => element.getText());
-    console.log(title);
+  // Assertion 1
+  await assertTimeout(driver, featuresAssertion.absoluteWaitDuration);
 
-    driver.quit();
+  // Assertion 2
+  await assertTitle(driver, featuresAssertion.title);
 })();
