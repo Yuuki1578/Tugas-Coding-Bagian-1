@@ -32,6 +32,8 @@ const targetUrl = "https://indonesiaindicator.com/home";
 const featuresAssertion = {
   title: "Indonesia Indicator",
   absoluteWaitDuration: 5000,
+  buttonText: "Learn More",
+  isJavascriptSupported: true,
 };
 
 const AutomataError = 0x00;
@@ -76,12 +78,36 @@ async function assertTitle(driver, expectedTitle) {
   if (runtimeTitle !== expectedTitle) {
     loggerAutomata.log(AutomataError, `Expected title: "${expectedTitle}", got: "${runtimeTitle}"`);
   } else {
-    loggerAutomata.log(AutomataInfo, `Assertion success: "${expectedTitle}" === "${runtimeTitle}"`);
+    loggerAutomata.log(AutomataInfo, `Assertion success: "${expectedTitle}" EQ "${runtimeTitle}"`);
+  }
+}
+
+async function assertButtonText(driver, expectedText) {
+  const buttonElement = await driver.findElement(By.tagName('button'));
+  const buttonText = await buttonElement.getText();
+
+  if (buttonText === expectedText) {
+    loggerAutomata.log(AutomataInfo, `Assertion success: "${expectedText}" EQ "${buttonText}"`);
+  } else {
+    loggerAutomata.log(AutomataError, `Assertion failed: expected "${expectedText}", found "${buttonText}"`);
+  }
+}
+
+async function assertJavascriptCapability(driver) {
+  const pageSource = await driver.getPageSource();
+  const occurence = pageSource.indexOf("noscript");
+
+  if (occurence >= 0) {
+    loggerAutomata.log(AutomataInfo, `Assertion success: JavaScript is supported in current environment`);
+    featuresAssertion.isJavascriptSupported = true;
+  } else {
+    loggerAutomata.log(AutomataError, `Assertion failed: <noscript> tags found, fallback`);
+    featuresAssertion.isJavascriptSupported = false;
   }
 }
 
 (async function main() {
-  let driver = new Builder().forBrowser(Browser.CHROME).build();
+  let driver = new Builder().forBrowser(Browser.FIREFOX).build();
   await driver.get(targetUrl);
 
   // Assertion 1
@@ -89,4 +115,10 @@ async function assertTitle(driver, expectedTitle) {
 
   // Assertion 2
   await assertTitle(driver, featuresAssertion.title);
+
+  // Assertion 3
+  await assertButtonText(driver, featuresAssertion.buttonText);
+
+  // Assertion 4
+  await assertJavascriptCapability(driver, featuresAssertion.buttonText);
 })();
